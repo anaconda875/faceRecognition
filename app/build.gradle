@@ -1,0 +1,54 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.example.nngbao.myapplication"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation project(':openCVLibrary341')
+}
+
+task packageNativeLibs_x86(type: Jar) {
+    baseName 'libtestlib'
+    classifier 'x86'
+    from(file('libs/x86/')) {
+        include '**/*.so'
+    }
+    into('lib/x86')
+    destinationDir(file('libs/'))
+}
+
+task packageNativeLibs(description: "package native libraries") {
+
+}
+//
+//packageNativeLibs.dependsOn 'packageNativeLibs_ARM'
+//packageNativeLibs.dependsOn 'packageNativeLibs_x86'
+
+task ndkBuild(type: Exec, description: "Task to run ndk-build") {
+    //commandLine 'cmd', '/c', 'cd', 'cpp', '&&', 'ndk-build'
+    commandLine 'cmd', '/c', 'echo kdfjgr'
+
+}
+
+packageNativeLibs.dependsOn 'ndkBuild'
+
+tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn packageNativeLibs }
+
+//clean.dependsOn 'cleanPackageNativeLibs'
