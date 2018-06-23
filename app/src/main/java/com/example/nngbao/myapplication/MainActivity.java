@@ -2,6 +2,7 @@ package com.example.nngbao.myapplication;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.SurfaceView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -43,12 +44,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         return rgba;
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         javaCameraView = findViewById(R.id.camera);
-
+        javaCameraView.setCvCameraViewListener(this);
+        javaCameraView.setVisibility(SurfaceView.VISIBLE);
     }
 
     @Override
@@ -58,5 +61,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             baseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         else
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this, baseLoaderCallback);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (javaCameraView != null)
+            javaCameraView.disableView();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (javaCameraView != null)
+            javaCameraView.disableView();
     }
 }

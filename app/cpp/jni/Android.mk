@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-OPENCVROOT := C:\work\OpenCV-android-sdk
+OPENCVROOT := C:\Users\DHCT\Downloads\OpenCV-android-sdk
 OPENCV_CAMERA_MODULES := on
 OPENCV_INSTALL_MODULES := on
 OPENCV_LIB_TYPE := SHARED
@@ -12,9 +12,9 @@ include $(OPENCVROOT)/sdk/native/jni/OpenCV.mk
 LOCAL_CPP_FEATURES += exceptions
 cppFlags := -"frtti"
 
-LOCAL_MODULE := native-lib
+LOCAL_MODULE := native_lib
 LOCAL_LDLIBS += -llog
-LOCAL_SRC_FILES := ./native-lib.cpp
+LOCAL_SRC_FILES := ./native_lib.cpp
 LOCAL_CFLAGS := $(cppFlags)
 
 NDK_MODULE_PATH := $(call my-dir)

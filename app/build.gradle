@@ -24,31 +24,9 @@ dependencies {
     implementation project(':openCVLibrary341')
 }
 
-task packageNativeLibs_x86(type: Jar) {
-    baseName 'libtestlib'
-    classifier 'x86'
-    from(file('libs/x86/')) {
-        include '**/*.so'
-    }
-    into('lib/x86')
-    destinationDir(file('libs/'))
-}
-
-task packageNativeLibs(description: "package native libraries") {
-
-}
-//
-//packageNativeLibs.dependsOn 'packageNativeLibs_ARM'
-//packageNativeLibs.dependsOn 'packageNativeLibs_x86'
-
 task ndkBuild(type: Exec, description: "Task to run ndk-build") {
-    //commandLine 'cmd', '/c', 'cd', 'cpp', '&&', 'ndk-build'
-    commandLine 'cmd', '/c', 'echo kdfjgr'
-
+    commandLine 'cmd', '/c', 'cd', 'cpp', '&&', 'make', '&&', 'make', 'install'
 }
 
-packageNativeLibs.dependsOn 'ndkBuild'
+tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn ndkBuild }
 
-tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn packageNativeLibs }
-
-//clean.dependsOn 'cleanPackageNativeLibs'
