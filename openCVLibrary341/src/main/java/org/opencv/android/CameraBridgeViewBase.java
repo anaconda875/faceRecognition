@@ -1,5 +1,8 @@
 package org.opencv.android;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import android.app.Activity;
@@ -13,6 +16,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -558,20 +562,76 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
 
         int maxAllowedWidth = (mMaxWidth != MAX_UNSPECIFIED && mMaxWidth < surfaceWidth) ? mMaxWidth : surfaceWidth;
         int maxAllowedHeight = (mMaxHeight != MAX_UNSPECIFIED && mMaxHeight < surfaceHeight) ? mMaxHeight : surfaceHeight;
+        Log.d(TAG, "supportedSize: ");
+//        for (int  i = 0; i < supportedSizes.size(); i++) {
+//            Size s = (Size) supportedSizes.get(i);
+//            Log.d(TAG, s.width + " x " + s.height);
+//        }
 
         for (Object size : supportedSizes) {
             int width = accessor.getWidth(size);
             int height = accessor.getHeight(size);
+            Log.d(TAG, width + " x " + height);
 
             if (width <= maxAllowedWidth && height <= maxAllowedHeight) {
                 if (width >= calcWidth && height >= calcHeight) {
-                    calcWidth = (int) width;
-                    calcHeight = (int) height;
+                    calcWidth = width;
+                    calcHeight = height;
                 }
             }
         }
-
+        Log.d(TAG, "Size: " + calcWidth + " x " + calcHeight);
         return new Size(calcWidth, calcHeight);
+    }
+
+    protected static Size chooseOptimalSize(android.util.Size[]choices, final int width, final int height) {
+        final int minSize = Math.max(Math.min(width, height), 320);
+        final android.util.Size desiredSize = new android.util.Size(width, height);
+
+        // Collect the supported resolutions that are at least as big as the preview Surface
+        boolean exactSizeFound = false;
+        final List<android.util.Size> bigEnough = new ArrayList<>();
+        final List<android.util.Size> tooSmall = new ArrayList<>();
+        for (final android.util.Size option : choices) {
+            if (option.equals(desiredSize)) {
+                // Set the size but don't return yet so that remaining sizes will still be logged.
+                exactSizeFound = true;
+            }
+
+            if (option.getHeight() >= minSize && option.getWidth() >= minSize) {
+                bigEnough.add(option);
+            } else {
+                tooSmall.add(option);
+            }
+        }
+
+        Log.d(TAG, "bigEnough: ");
+        for (android.util.Size s: bigEnough)
+            Log.d(TAG, s.getWidth() + " x " + s.getHeight());
+
+        if (exactSizeFound) {
+
+            return new Size(desiredSize.getWidth(), desiredSize.getHeight());
+        }
+
+        // Pick the smallest of those, assuming we found any
+        if (bigEnough.size() > 0) {
+            final android.util.Size chosenSize = Collections.min(bigEnough, new CompareSizesByArea());
+
+            return new Size(chosenSize.getWidth(), chosenSize.getHeight());
+        } else {
+
+            return new Size(choices[0].getWidth(), choices[0].getHeight());
+        }
+    }
+
+    static class CompareSizesByArea implements Comparator<android.util.Size> {
+        @Override
+        public int compare(final android.util.Size lhs, final android.util.Size rhs) {
+            // We cast here to ensure the multiplications won't overflow
+            return Long.signum(
+                    (long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight());
+        }
     }
 }
 

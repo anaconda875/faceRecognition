@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-OPENCVROOT := C:\Users\DHCT\Downloads\OpenCV-android-sdk
+OPENCVROOT := C:\work\OpenCV-android-sdk
 OPENCV_CAMERA_MODULES := on
 OPENCV_INSTALL_MODULES := on
 OPENCV_LIB_TYPE := SHARED

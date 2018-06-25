@@ -49,9 +49,9 @@ JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_d
 		//Mat faceROI = frame_gray( faces[i] );
 		int x = faces[i].x;
 		int y = faces[i].y;
-		int h = y+faces[i].height;
-		int w = x+faces[i].width;
-		rectangle(frame, Point(x,y), Point(w,h), Scalar(255,0,255), 2, 8, 0);
+		int h = faces[i].height;
+		int w = faces[i].width;
+		rectangle(frame, Point(x,y), Point(x + w, y + h), Scalar(255,0,255), 2, 8, 0);
 		
 		int size = 4;
 		jintArray result;
@@ -64,11 +64,19 @@ JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_d
 		// move from the temp structure to the java structure
 		env->SetIntArrayRegion(result, 0, size, fill);
 		
-		Rect r(x, y, w - x, h - y);  
+		int x1 = x - 0.2 * w;
+		int y1 = y - 0.2 * h;
+		int w1 = 1.2 * w;
+		int h1 = 1.2 * h;
+		
+		if (x1 < 0 || y1 < 0 || w1 > frame.size().width || h1 > frame.size().height)
+			continue;
+		
+		Rect r(x1, y1, w1, h1);  
 		//Rect track_window = r;
 		Mat roi = frame(r);
-		//cvtColor(roi, roi, CV_BGR2RGB);
-		imwrite("/sdcard/c.jpg", roi);
+		cvtColor(roi, roi, CV_BGR2RGB);
+		imwrite("/sdcard/c.png", roi);
 		return result;
 		
 		//return true;

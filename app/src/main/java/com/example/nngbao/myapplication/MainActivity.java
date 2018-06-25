@@ -1,5 +1,6 @@
 package com.example.nngbao.myapplication;
 
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.SurfaceView;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         rgba = inputFrame.rgba();
+        FaceDetector.detectFace(Environment.getExternalStorageDirectory().toString() + "/haarcascade_frontalface_alt.xml", rgba.getNativeObjAddr());
         return rgba;
     }
 
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         javaCameraView = findViewById(R.id.camera);
+        javaCameraView.setCameraIndex(1);
         javaCameraView.setCvCameraViewListener(this);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
     }

@@ -67,7 +67,7 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
     }
 
     protected boolean initializeCamera(int width, int height) {
-        Log.d(TAG, "Initialize java camera");
+        Log.d(TAG, "Initialize java camera with desert size: " + width + " x " + height);
         boolean result = true;
         synchronized (this) {
             mCamera = null;
@@ -140,11 +140,19 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
             try {
                 Camera.Parameters params = mCamera.getParameters();
                 Log.d(TAG, "getSupportedPreviewSizes()");
-                List<android.hardware.Camera.Size> sizes = params.getSupportedPreviewSizes();
+                List<Camera.Size> cameraSizes = params.getSupportedPreviewSizes();
 
-                if (sizes != null) {
+                android.util.Size[] sizes = new android.util.Size[cameraSizes.size()];
+                int i = 0;
+                for (Camera.Size size : cameraSizes) {
+                    sizes[i++] = new android.util.Size(size.width, size.height);
+                }
+
+                if (cameraSizes != null) {
                     /* Select the size that fits surface considering maximum size allowed */
-                    Size frameSize = calculateCameraFrameSize(sizes, new JavaCameraSizeAccessor(), width, height);
+                    //Size frameSize = calculateCameraFrameSize(sizes, new JavaCameraSizeAccessor(), width, height);
+                    Size frameSize = chooseOptimalSize(sizes, 640, 480);
+
 
                     /* Image format NV21 causes issues in the Android emulators */
                     if (Build.FINGERPRINT.startsWith("generic")

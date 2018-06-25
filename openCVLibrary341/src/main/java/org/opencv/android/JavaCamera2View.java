@@ -6,6 +6,7 @@ import java.util.Arrays;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -261,7 +262,7 @@ public class JavaCamera2View extends CameraBridgeViewBase {
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             int bestWidth = 0, bestHeight = 0;
             float aspect = (float) width / height;
-            android.util.Size[] sizes = map.getOutputSizes(ImageReader.class);
+            android.util.Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
             bestWidth = sizes[0].getWidth();
             bestHeight = sizes[0].getHeight();
             for (android.util.Size sz : sizes) {
