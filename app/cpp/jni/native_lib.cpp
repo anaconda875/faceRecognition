@@ -1,19 +1,17 @@
 #include <native_lib.h>
 
 JNIEXPORT jstring JNICALL Java_com_example_nngbao_myapplication_FaceDetector_stringFromJNI(JNIEnv *env, jobject) {
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
+    
+    
+    return NULL;
 }
 
 JNIEXPORT jint JNICALL Java_com_example_nngbao_myapplication_FaceDetector_intFromJNI(JNIEnv *env, jobject) {
 	return (jint)1;
 }
 
-JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_detectFace(JNIEnv *env, jobject, jstring xmlPath, jlong rgbaSrc, jobject) {
+JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_detectFace(JNIEnv *env, jobject, jstring xmlPath, jstring dataDir, jlong rgbaSrc, jobject) {
 	Mat &frame = *(Mat*) rgbaSrc;
-	const char *nativeString = env->GetStringUTFChars(xmlPath, JNI_FALSE);
-	String str(nativeString);
-	cout << str << endl;
 	
 	/*int hsize[] = {16,16,16};
     float hranges[] = { 0,180 };
@@ -31,8 +29,8 @@ JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_d
     normalize(roi_hist, roi_hist, 0, 255, NORM_MINMAX);*/
 	
 	CascadeClassifier faceDetector;
-	if(!faceDetector.load(str)) return NULL;
-		//return env->NewStringUTF(((std::string)"ERROR").c_str());
+	if(!faceDetector.load(String(env->GetStringUTFChars(xmlPath, JNI_FALSE)))) return NULL;
+		//return env->NewStringUTF(((string)"ERROR").c_str());
 	
 	vector<Rect> faces;
 	Mat gray;
@@ -41,7 +39,9 @@ JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_d
 	faceDetector.detectMultiScale(gray, faces, 1.2, 3, 0|CV_HAAR_SCALE_IMAGE, Size(150, 150), Size(360, 360));
 	stringstream ss;
 	ss << faces.size();
-	__android_log_write(ANDROID_LOG_INFO, "onCameraFrame: ", ss.str().c_str());
+	
+	//__android_log_write(ANDROID_LOG_INFO, "onCameraFrame: ", fileName.c_str());
+	//__android_log_write(ANDROID_LOG_INFO, "dataDir: ", ss.str().c_str());
 	
 	for(size_t i = 0; i < faces.size(); i++) {
 		if(faces[i].width < 150 || faces[i].height > 360)
@@ -51,7 +51,6 @@ JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_d
 		int y = faces[i].y;
 		int h = faces[i].height;
 		int w = faces[i].width;
-		rectangle(frame, Point(x,y), Point(x + w, y + h), Scalar(255,0,255), 2, 8, 0);
 		
 		int size = 4;
 		jintArray result;
@@ -76,10 +75,27 @@ JNIEXPORT jintArray JNICALL Java_com_example_nngbao_myapplication_FaceDetector_d
 		//Rect track_window = r;
 		Mat roi = frame(r);
 		cvtColor(roi, roi, CV_BGR2RGB);
-		imwrite("/sdcard/c.png", roi);
+		resize(roi, roi, Size(96, 96), 0, 0);
+		string fileName = generateRandomStr();
+		imwrite(String(env->GetStringUTFChars(dataDir, JNI_FALSE)) + String("/") + String(fileName.c_str()) + String(".png"), roi);
+		rectangle(frame, Point(x,y), Point(x + w, y + h), Scalar(255,0,255), 2, 8, 0);
 		return result;
 		
 		//return true;
 	}
 	return NULL;
+}
+
+string generateRandomStr() {
+    const int max_len = 16;
+    string valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789";
+
+    random_device rd;
+    mt19937 g(rd());
+
+    shuffle(valid_chars.begin(), valid_chars.end(), g);
+
+    string rand_str(valid_chars.begin(), valid_chars.begin() + max_len);
+    
+    return rand_str;
 }

@@ -4,5 +4,5 @@ public class FaceDetector {
     static {
         System.loadLibrary("native_lib");
     }
-    public static native int[] detectFace(String xmlPath, long rgbaSrc);
+    public static native int[] detectFace(String xmlPath, String dataDir, long rgbaSrc);
 }
